@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios';
 
-
 function App() {
+  const [data, setData] = useState([]);
 
-  const [data, setData] = useState({})
   const fetchDetail = async () => {
-    const api = await axios.get('http://localhost:3001/')
-    const data = await api.data
-    console.log({ data })
-    localStorage.setItem('userData', [data.userName, data.password])
-    setData(data)
-  }
+    try {
+      const response = await axios.get('http://localhost:3001/');
+      const fetchedData = response.data;
+      localStorage.setItem('userData', JSON.stringify(fetchedData));
+      setData(fetchedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   const generateJsonFile = () => {
     const jsonString = JSON.stringify(data);
@@ -23,24 +25,37 @@ function App() {
     const downloadLink = document.createElement('a');
     downloadLink.href = url;
     downloadLink.download = 'data.json';
-    // downloadLink.textContent = 'Download JSON';
 
-     document.body.appendChild(downloadLink).click()
-  }
-
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
 
   useEffect(() => {
-    fetchDetail()
-  }, [0])
+    fetchDetail();
+  }, []);
+
   return (
     <div className="App">
-      <h5>UserName: {data.userName}</h5>
-      <h5>Password: {data.password}</h5>
-      <button onClick={() => { generateJsonFile() }}>Kill Me</button>
+      <table>
+        <thead>
+          <tr>
+            <th>Employee_ID</th>
+            <th>Employee_Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.Employee_ID}</td>
+              <td>{item.Employee_Name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button onClick={generateJsonFile}>Generate JSON File</button>
     </div>
   );
 }
 
 export default App;
-
-
