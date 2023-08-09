@@ -1,20 +1,3 @@
-// npm i express
-// npm i -g nx
-// npx tsc --init
-// npm init -y
-
-
-// ------------
-
-// npx create-react-app frontend 
-
-
-// cd frontend 
- 
-// npm i axios 
-
-
-
 import express from 'express';
 import cors from 'cors';
 
@@ -25,10 +8,11 @@ app.use(cors())
 const port: number = 3001;
 
 
-const data= {
-    userName: "admin",
-    password : "12345"
-}
+let data =[
+    {Employee_ID : '1234', Employee_Name : 'ak'},
+    {Employee_ID : '124', Employee_Name : 'ak'},
+    {Employee_ID : '134', Employee_Name : 'ak'}
+    ]
 
 // Handling '/' Request
 app.get('/', (_req, _res) => {
