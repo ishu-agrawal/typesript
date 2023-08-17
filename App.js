@@ -4,12 +4,13 @@ import axios from 'axios';
 
 function App() {
   const [data, setData] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editedName, setEditedName] = useState('');
 
   const fetchDetail = async () => {
     try {
       const response = await axios.get('http://localhost:3001/');
       const fetchedData = response.data;
-      localStorage.setItem('userData', JSON.stringify(fetchedData));
       setData(fetchedData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -31,6 +32,24 @@ function App() {
     document.body.removeChild(downloadLink);
   };
 
+  const handleEdit = (id, name) => {
+    setEditingId(id);
+    setEditedName(name);
+  };
+
+  const handleSaveEdit = async (id) => {
+    try {
+      const response = await axios.put(`http://localhost:3001/edit/${id}`, {
+        name: editedName
+      });
+      const updatedData = response.data;
+      setData(updatedData);
+      setEditingId(null);
+    } catch (error) {
+      console.error('Error updating data:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDetail();
   }, []);
@@ -42,13 +61,35 @@ function App() {
           <tr>
             <th>Employee_ID</th>
             <th>Employee_Name</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, index) => (
             <tr key={index}>
               <td>{item.Employee_ID}</td>
-              <td>{item.Employee_Name}</td>
+              <td>
+                {editingId === item.Employee_ID ? (
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                  />
+                ) : (
+                  item.Employee_Name
+                )}
+              </td>
+              <td>
+                {editingId === item.Employee_ID ? (
+                  <button onClick={() => handleSaveEdit(item.Employee_ID)}>
+                    Save
+                  </button>
+                ) : (
+                  <button onClick={() => handleEdit(item.Employee_ID, item.Employee_Name)}>
+                    Edit
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
