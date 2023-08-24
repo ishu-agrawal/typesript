@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid'; 
 
 function App() {
   const [data, setData] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState('');
+  // const [counter, setCounter] = useState(1);
 
   const fetchDetail = async () => {
     try {
@@ -38,41 +38,53 @@ function App() {
     setEditedName(name);
   };
 
-  const handleSaveEdit = async (id) => {
-    try {
-      const response = await axios.put(`http://localhost:3001/edit/${id}`, {
-        name: editedName
+  const handleSaveEdit = (id) => {
+    // Find the edited item and update its name
+    const updatedData = data.map(item =>
+      item.Employee_ID === id ? { ...item, Employee_Name: editedName } : item
+    );
+
+    axios.put(`http://localhost:3001/edit/${id}`, { name: editedName })
+      .then(() => {
+        setData(updatedData);
+        setEditingId(null);
+        setEditedName('');
+      })
+      .catch((error) => {
+        console.error('Error saving edit:', error);
       });
-      const updatedData = response.data;
-      setData(updatedData);
-      setEditingId(null);
-    } catch (error) {
-      console.error('Error updating data:', error);
-    }
   };
 
-  const handleAddRow = async () => {
-    try {
-      const response = await axios.post('http://localhost:3001/add', {
-        Employee_ID: uuidv4(),
-        Employee_Name: 'New Employee'
+  const handleAddRow = () => {
+    const prevId = data[data.length - 1].Employee_ID;
+    const newId = (parseInt(prevId) + 1).toString();
+
+    const newItem = {
+      Employee_ID: newId,
+      Employee_Name: editedName || 'New Employee' // Use entered name or default
+    };
+
+    axios.post('http://localhost:3001/add', newItem)
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error('Error adding row:', error);
       });
-      const updatedData = response.data;
-      setData(updatedData);
-    } catch (error) {
-      console.error('Error adding row:', error);
-    }
+
+    setEditedName(''); // Reset editedName state  
   };
 
-  const handleDeleteRow = async (id) => {
-    try {
-      const response = await axios.delete(`http://localhost:3001/delete/${id}`);
-      const updatedData = response.data;
-      setData(updatedData);
-    } catch (error) {
-      console.error('Error deleting row:', error);
-    }
+  const handleDeleteRow = (id) => {
+    axios.delete(`http://localhost:3001/delete/${id}`)
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error('Error deleting row:', error);
+      });
   };
+
 
   useEffect(() => {
     fetchDetail();
