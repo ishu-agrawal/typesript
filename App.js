@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; 
 
 function App() {
   const [data, setData] = useState([]);
@@ -50,6 +51,29 @@ function App() {
     }
   };
 
+  const handleAddRow = async () => {
+    try {
+      const response = await axios.post('http://localhost:3001/add', {
+        Employee_ID: uuidv4(),
+        Employee_Name: 'New Employee'
+      });
+      const updatedData = response.data;
+      setData(updatedData);
+    } catch (error) {
+      console.error('Error adding row:', error);
+    }
+  };
+
+  const handleDeleteRow = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:3001/delete/${id}`);
+      const updatedData = response.data;
+      setData(updatedData);
+    } catch (error) {
+      console.error('Error deleting row:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDetail();
   }, []);
@@ -89,12 +113,16 @@ function App() {
                     Edit
                   </button>
                 )}
+                <button onClick={() => handleDeleteRow(item.Employee_ID)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
       <button onClick={generateJsonFile}>Generate JSON File</button>
+      <button onClick={handleAddRow}>Add Row</button>
     </div>
   );
 }
