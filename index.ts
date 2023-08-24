@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 
 const app: express.Application = express();
 app.use(cors());
@@ -14,13 +13,25 @@ interface Employee {
 }
 
 let data: Employee[] = [
-  { Employee_ID: uuidv4(), Employee_Name: 'ak' },
-  { Employee_ID: uuidv4(), Employee_Name: 'ak' },
-  { Employee_ID: uuidv4(), Employee_Name: 'ak' },
+  { Employee_ID: '1', Employee_Name: 'ak' },
+  { Employee_ID: '2', Employee_Name: 'ak' },
+  { Employee_ID: '3', Employee_Name: 'ak' }
 ];
 
 app.get('/', (_req, _res) => {
   _res.json(data);
+});
+
+app.post('/add', (req, res) => {
+  const { Employee_ID, Employee_Name } = req.body;
+
+  const newItem: Employee = {
+    Employee_ID,
+    Employee_Name
+  };
+
+  data.push(newItem);
+  res.json(data);
 });
 
 app.put('/edit/:id', (req, res) => {
@@ -37,25 +48,13 @@ app.put('/edit/:id', (req, res) => {
   }
 });
 
-app.post('/add', (req, res) => {
-  const { Employee_ID, Employee_Name } = req.body;
-
-  const newItem: Employee = {
-    Employee_ID,
-    Employee_Name,
-  };
-
-  data.push(newItem);
-  res.json(data);
-});
-
 app.delete('/delete/:id', (req, res) => {
   const { id } = req.params;
 
   const index = data.findIndex((item) => item.Employee_ID === id);
 
   if (index !== -1) {
-    data.splice(index, 1);
+    data.splice(index, 1); // Remove the item at the index
     res.json(data);
   } else {
     res.status(404).json({ message: 'Item not found' });
