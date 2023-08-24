@@ -37,6 +37,31 @@ app.put('/edit/:id', (req, res) => {
   }
 });
 
+app.post('/add', (req, res) => {
+  const { Employee_ID, Employee_Name } = req.body;
+
+  const newItem: Employee = {
+    Employee_ID,
+    Employee_Name,
+  };
+
+  data.push(newItem);
+  res.json(data);
+});
+
+app.delete('/delete/:id', (req, res) => {
+  const { id } = req.params;
+
+  const index = data.findIndex((item) => item.Employee_ID === id);
+
+  if (index !== -1) {
+    data.splice(index, 1);
+    res.json(data);
+  } else {
+    res.status(404).json({ message: 'Item not found' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`TypeScript with Express: http://localhost:${port}/`);
 });
